@@ -1,0 +1,51 @@
+{% extends "allauth/layouts/manage.html" %}
+{% load allauth %}
+{% load i18n %}
+{% load custom_filters %}
+
+{% block nav_class_profile %}
+    nav-link text-white active
+{% endblock %}
+
+{% block content %}
+
+<div class="col col-lg-8 mx-auto">
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            {% element h1 %}    
+                Profile
+            {% endelement %}
+          <p class="lead">"Hello {{ user.first_name }}, {% trans "you can add or change your profile information here."%}</p>
+        </div>
+      </div>
+        <div class="bg-white shadow rounded-4">
+            <div class="p-5">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                            {% if field.errors %}
+                                {{ field|add_class:"form-control is-invalid" }}
+                            {% else %}
+                                {{ field|add_class:"form-control" }}
+                            {% endif %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                            {% if field.errors %}
+                                <div class="invalid-feedback">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
