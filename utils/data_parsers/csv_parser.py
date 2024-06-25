@@ -52,7 +52,7 @@ def process_folder(folder_path):
 
 if __name__ == "__main__":
     # Example usage
-    folder_path = "path/to/directory"
+    folder_path = "/home/walmer/Projects/HighgateDashboard/.private/reports"
     all_data = process_folder(folder_path)
     for x in all_data:
         print(x)

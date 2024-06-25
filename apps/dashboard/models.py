@@ -1,5 +1,5 @@
 from django.db import models
-from utils.hashers import hash_record
+from utils.hashers.hash_record import hash_record
 import uuid
 
 class Location(models.Model):
@@ -38,8 +38,8 @@ class Service(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     meter = models.ForeignKey(Meter, on_delete=models.CASCADE, blank=True, null=True)
     rate_schedule = models.ForeignKey(RateSchedule, on_delete=models.CASCADE, blank=True, null=True)
-    month = models.DateField()
-    year = models.DateField()
+    month = models.IntegerField()
+    year = models.IntegerField()
     service_days = models.IntegerField()
     cost = models.DecimalField(max_digits=10, decimal_places=2)
     service_type = models.CharField(max_length=50)
