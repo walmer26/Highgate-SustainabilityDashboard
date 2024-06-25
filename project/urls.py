@@ -46,4 +46,5 @@ urlpatterns = [
 
     # MyApps
     path('users/', include('apps.users.urls', namespace='users')),
+    path('dashboard/', include('apps.dashboard.urls', namespace='dashboard')),
 ]
