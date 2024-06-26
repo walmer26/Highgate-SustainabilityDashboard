@@ -27,7 +27,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
                     <img src="{% static 'icons/app_icon_white.png' %}" alt="Project Logo" width="25" height="30" class="d-inline-block align-top me-2">
-                    <span>Project</span>
+                    <span>Sustainability Project</span>
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,7 +39,7 @@
                         {% if user.is_authenticated %}
 
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">{% trans "Home" %}</a>
+                            <a class="nav-link active" aria-current="page" href="{% url 'dashboard:dashboard' %}">{% trans "Dashboard" %}</a>
                         </li>
 
                         <!-- Add more nav items here -->

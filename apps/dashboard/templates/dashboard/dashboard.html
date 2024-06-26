@@ -1,0 +1,39 @@
+{% extends "allauth/layouts/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="jumbotron bg-light p-4 shadow-sm">
+                <h2 class="mb-4">Service Usage Summary</h2>
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title text-start mb-0">
+                            <a class="text-white" data-bs-toggle="collapse" href="#allServiceCards" role="button" aria-expanded="false" aria-controls="allServiceCards" style="text-decoration:none;">
+                                View All Service Usage Summary
+                            </a>
+                        </h5>
+                    </div>
+                    <div id="allServiceCards" class="collapse show">
+                        <div class="card-body">
+                            {% for service_type, plot_base64, uom in plots %}
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header bg-dark text-white">
+                                    <h5 class="card-title text-start mb-0">
+                                        Service Type: {{ service_type }} Usage Summary for Top 25 Properties ({{ uom }})
+                                    </h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <img src="data:image/png;base64,{{ plot_base64 }}" class="img-fluid" alt="Service Type: {{ service_type }} Usage Summary Plot">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

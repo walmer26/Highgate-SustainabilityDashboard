@@ -41,12 +41,12 @@ class Service(models.Model):
     month = models.IntegerField()
     year = models.IntegerField()
     service_days = models.IntegerField()
-    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    cost = models.DecimalField(max_digits=25, decimal_places=2)
     service_type = models.CharField(max_length=50)
     uom = models.CharField(max_length=50)
-    usage = models.DecimalField(max_digits=10, decimal_places=3)
-    cost_per_unit = models.DecimalField(max_digits=10, decimal_places=3)
-    kbtus = models.DecimalField(max_digits=10, decimal_places=3)
+    usage = models.DecimalField(max_digits=25, decimal_places=3)
+    cost_per_unit = models.DecimalField(max_digits=25, decimal_places=3)
+    kbtus = models.DecimalField(max_digits=25, decimal_places=3)
     open_exceptions = models.BooleanField()
     bundle = models.CharField(max_length=255)
     entity = models.CharField(max_length=255)
@@ -70,6 +70,5 @@ class Service(models.Model):
         return hash_record(**fields_to_hash)
 
     def save(self, *args, **kwargs):
-        # Calculate the hash before saving
         self.hash = self.get_hash()
         super(Service, self).save(*args, **kwargs)
