@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -8,17 +9,31 @@ from .models import Service
 
 @login_required
 def dashboard_view(request):
-    # Fetch all unique locations and service types
-    all_locations = Service.objects.values_list('location__name', flat=True).distinct()
-    all_service_types = Service.objects.values_list('service_type', 'uom').distinct()
+    # Define cache keys
+    all_locations_cache_key = 'all_locations'
+    all_service_types_cache_key = 'all_service_types'
+    usage_summary_cache_key = 'usage_summary_2024'
+
+    # Fetch all unique locations and service types from cache or database
+    all_locations = cache.get_or_set(
+        all_locations_cache_key,
+        lambda: list(Service.objects.values_list('location__name', flat=True).distinct()),
+        60 * 15
+    )
+
+    all_service_types = cache.get_or_set(
+        all_service_types_cache_key,
+        lambda: list(Service.objects.values_list('service_type', 'uom').distinct()),
+        60 * 15
+    )
 
     # Aggregate usage by location and service type
     usage_summary = Service.objects \
-        .select_related('location', 'vendor', 'account', 'meter', 'rate_schedule') \
-        .filter(year=2024) \
-        .values('location__name', 'service_type', 'uom') \
-        .annotate(total_usage=Sum('usage')) \
-        .order_by('location__name', 'service_type')
+                     .select_related('location', 'vendor', 'account', 'meter', 'rate_schedule') \
+                     .filter(year=2024) \
+                     .values('location__name', 'service_type', 'uom') \
+                     .annotate(total_usage=Sum('usage')) \
+                     .order_by('location__name', 'service_type')
 
     # Create a dictionary to hold the data
     data = {location: {service_type: 0 for service_type, _ in all_service_types} for location in all_locations}
@@ -46,7 +61,7 @@ def dashboard_view(request):
 
         usage_values = [filtered_data[loc][service_type] for loc in top_locations]
         ax.barh(index, usage_values, bar_height, label=service_type)
-        
+
         ax.set_ylabel('Locations', fontsize=14)
         ax.set_xlabel(f'Total Usage ({uom})', fontsize=14)
         ax.set_title(f'Service Type: {service_type} Usage Summary for Top 25 Properties ({uom})', fontsize=16)
