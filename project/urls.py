@@ -47,4 +47,5 @@ urlpatterns = [
     # MyApps
     path('users/', include('apps.users.urls', namespace='users')),
     path('dashboard/', include('apps.dashboard.urls', namespace='dashboard')),
+    path('upload/', include('apps.upload.urls', namespace='upload')),
 ]

@@ -1,0 +1,47 @@
+{% extends "allauth/layouts/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load reports_custom_filters %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="hero bg-light p-5 rounded shadow-lg" style="width: 80%; max-width: 1200px;">
+        <div class="w-100">
+            <h1 class="display-4">{% trans "Upload Report" %}</h1>
+            <p class="lead">{% trans "Easily upload your Engie platform reports using the form below." %}</p>
+
+            {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        {% if message.tags == "error" %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ message|linebreaksbr }}
+                            </div>
+                        {% elif message.tags == "success" %}
+                            <div class="alert alert-success" role="alert">
+                                {{ message|linebreaksbr }}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-{{ message.tags }}" role="alert">
+                                {{ message|linebreaksbr }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group mb-3">
+                        {{ field|add_class:"form-control" }}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary w-100">{% trans 'Upload' %}</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

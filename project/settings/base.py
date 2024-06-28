@@ -72,7 +72,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google', # AllAuth 
     'allauth.mfa', # AllAuth 
     'apps.users',
-    'apps.dashboard'
+    'apps.dashboard',
+    'apps.upload',
 ]
 
 
