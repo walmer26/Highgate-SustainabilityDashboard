@@ -334,4 +334,4 @@ ehthumbs_vista.db
 # =========================
 # PERSONAL ADDED
 # =========================
-.private
+**/.private/*
