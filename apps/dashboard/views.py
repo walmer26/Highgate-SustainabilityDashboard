@@ -1,11 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-import matplotlib.pyplot as plt
-import io
-import base64
 from django.shortcuts import render
 from django.db.models import Sum, Max
 from .models import Service
+import io
+import base64
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 @login_required
