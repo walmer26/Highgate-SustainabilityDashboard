@@ -1,5 +1,5 @@
 from django.db import models
-from utils.hashers.hash_record import hash_record
+import hashlib
 import uuid
 
 class Location(models.Model):
@@ -52,10 +52,14 @@ class Service(models.Model):
     entity = models.CharField(max_length=255)
     hash = models.CharField(max_length=64, blank=True, editable=False)
 
+    def generate_record_hash(self, **fields):
+        """Generate a SHA-256 hash for the given record."""
+        # Convert all field values to strings and concatenate them
+        record_str = ''.join([str(value) for key, value in sorted(fields.items())])
+        return hashlib.sha256(record_str.encode('utf-8')).hexdigest()
+
     def get_hash(self):
-        """
-        Returns a hash of the specified fields of the service.
-        """
+        """Returns a hash of the specified fields of the service."""
         fields_to_hash = {
             'location_id': self.location.id,
             'vendor_id': self.vendor.id,
@@ -67,7 +71,7 @@ class Service(models.Model):
             'service_days': self.service_days,
             'service_type': self.service_type,
         }
-        return hash_record(**fields_to_hash)
+        return self.generate_record_hash(**fields_to_hash)
 
     def save(self, *args, **kwargs):
         self.hash = self.get_hash()
