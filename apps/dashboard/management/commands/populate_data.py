@@ -1,17 +1,22 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.conf import settings
+from django.core.cache import cache
 from apps.dashboard.models import Location, Vendor, Account, Meter, RateSchedule, Service
-from utils.data_parsers.csv_parser import process_folder
+from utils.data_parsers.csv_parser import parse_csv
 from datetime import datetime
 from decimal import Decimal
 
 class Command(BaseCommand):
     help = 'Populate the database with initial data'
-    BATCH_SIZE = 10000
+    BATCH_SIZE = 2000
+
+    def add_arguments(self, parser):
+        parser.add_argument('file_path', type=str, help='The path to the uploaded CSV file')
 
     def handle(self, *args, **kwargs):
-        data_folder_path = "/home/walmer/Projects/HighgateDashboard/.private/reports"
-        data = process_folder(data_folder_path)
+        file_path = kwargs['file_path']
+        data = parse_csv(file_path)
 
         locations_cache = {}
         vendors_cache = {}
@@ -22,6 +27,7 @@ class Command(BaseCommand):
         services_to_create = []
 
         record_count = 0
+        cumulative_record_count = 0
         
         for record in data:
             location_name = record['Location Name']
@@ -122,6 +128,7 @@ class Command(BaseCommand):
             if not Service.objects.filter(hash=service.hash).exists():
                 services_to_create.append(service)
                 record_count += 1
+                cumulative_record_count += 1
 
                 if record_count >= self.BATCH_SIZE:
                     try:
@@ -139,7 +146,10 @@ class Command(BaseCommand):
                 with transaction.atomic():
                     Service.objects.bulk_create(services_to_create, ignore_conflicts=False)
                 self.stdout.write(self.style.SUCCESS(f"{len(services_to_create)} records populated successfully"))
+                cache.set('populate_data_message', f"{cumulative_record_count} records populated successfully!", timeout=60*15)
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Error during bulk create: {str(e)}"))
+                cache.set('populate_data_message', f'Error populating data: {str(e)}', timeout=60*15)
         else:
             self.stdout.write(self.style.SUCCESS("No records to populate!"))
+            cache.set('populate_data_message', 'No records to populate!', timeout=60*15)

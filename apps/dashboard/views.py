@@ -51,15 +51,17 @@ def dashboard_view(request):
         uom = entry['uom']
         total_usage = float(entry['total_usage'])
 
+        # Ensure the location and service_type exist in the data dictionary
+        if location_name not in data:
+            data[location_name] = {service_type: 0 for service_type, _ in all_service_types}
+        if service_type not in data[location_name]:
+            data[location_name][service_type] = 0
+
         # Update data for plots
         data[location_name][service_type] += total_usage
 
         # Update data for summary tables
-        if location_name not in location_data:
-            location_data[location_name] = {}
-        if month not in location_data[location_name]:
-            location_data[location_name][month] = {}
-        location_data[location_name][month][service_type] = total_usage
+        location_data.setdefault(location_name, {}).setdefault(month, {})[service_type] = total_usage
         service_types_set.add(service_type)
 
     # Convert the set of service types to a sorted list
