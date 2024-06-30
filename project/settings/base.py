@@ -12,19 +12,17 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
-from dotenv import dotenv_values
+from dotenv import load_dotenv, find_dotenv
 
 
-# Get the environment and load the appropriate .env file
-ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT')
+# Get the django deployment environment defaulting to development.
+ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT', 'development')
 
-if ENVIRONMENT == 'production':
-    dotenv_path = ".env.production"
-else:
-    dotenv_path = ".env.development"
+# Set the environment file name
+env_file = f".env.{ENVIRONMENT}"
 
-# Load the .env file
-config = dotenv_values(dotenv_path)
+# Load the corresponding .env file
+load_dotenv(find_dotenv(env_file))
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -36,7 +34,7 @@ TEMPLATE_DIR = BASE_DIR.joinpath('templates')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#admins
 
 ADMINS = (
-    (config['PROJECT_ADMIN_NAME'], config['PROJECT_ADMIN_EMAIL']),
+    (os.getenv('PROJECT_ADMIN_NAME'), os.getenv('PROJECT_ADMIN_EMAIL')),
 )
 
 MANAGERS = ADMINS
@@ -158,7 +156,7 @@ LANGUAGES = [
     # ("de", "German"),
     # ("el", "Greek"),
     ("en", "English"),
-    ("es", "Spanish"),
+    # ("es", "Spanish"),
     # ("et", "Estonian"),
     # ("eu", "Basque"),
     # ("fa", "Persian"),
@@ -251,8 +249,8 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online'
         },
         'APP': {
-            'client_id': config['GOOGLE_OAUTH_CLIENT_ID'],
-            'secret': config['GOOGLE_OAUTH_SECRET']
+            'client_id': os.getenv('GOOGLE_OAUTH_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_OAUTH_SECRET')
         }
     }
 }

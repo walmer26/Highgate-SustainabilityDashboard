@@ -8,7 +8,7 @@ import base64
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
+ 
 
 @login_required
 def dashboard_view(request):

@@ -31,5 +31,5 @@ class ProfileForm(forms.ModelForm):
             'preferred_communication_method',
             'additional_phone_number', 
             'emergency_contact_name', 
-            'emergency_contact_phone', 
+            'emergency_contact_phone',
         ]

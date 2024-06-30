@@ -9,7 +9,7 @@ from decimal import Decimal
 
 class Command(BaseCommand):
     help = 'Populate the database with initial data'
-    BATCH_SIZE = 2000
+    BATCH_SIZE = 1000
 
     def add_arguments(self, parser):
         parser.add_argument('file_path', type=str, help='The path to the uploaded CSV file')

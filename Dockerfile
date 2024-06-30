@@ -2,11 +2,11 @@
 FROM python:3.10.12-slim
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Change to production as needed
-ENV DJANGO_ENVIRONMENT development
+ENV DJANGO_ENVIRONMENT=development
 
 # Set work directory
 WORKDIR /code
