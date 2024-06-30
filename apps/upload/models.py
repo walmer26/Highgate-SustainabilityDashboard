@@ -6,7 +6,7 @@ import uuid
 class Report(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     file = models.FileField(upload_to='reports/')
-    file_hash = models.CharField(max_length=64, unique=True)
+    file_hash = models.CharField(max_length=64, unique=True, editable=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def generate_file_hash(self, file):

@@ -15,15 +15,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
 from django.views.generic.base import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from allauth.account.decorators import secure_admin_login
+from django.urls import path, include
+import os
 
 
-
+# Admin setup
 admin.autodiscover()
 admin.site.login = secure_admin_login(admin.site.login)
+admin.site.site_header = os.getenv("DJANGO_ADMIN_SITE_HEADER")
+admin.site.index_title = os.getenv("DJANGO_ADMIN_SITE_TITLE")
 
 
 # This class provides a home page when no app is added.

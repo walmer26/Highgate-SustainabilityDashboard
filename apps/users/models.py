@@ -22,7 +22,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
-        ordering = ["last_name"]
+        ordering = ["first_name"]
 
 class Profile(models.Model):
     """
@@ -51,4 +51,4 @@ class Profile(models.Model):
     class Meta:
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
-        ordering = ["user__last_name"]
+        ordering = ["user__first_name"]
