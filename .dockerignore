@@ -35,6 +35,8 @@ MANIFEST
 *.pyc
 *.pyo
 *.sqlite3
+staticfiles/
+media/
 
 # Pyre type checker
 .pyre/
@@ -88,3 +90,9 @@ docker-compose.override.yml
 
 # General
 *.swp
+
+# =========================
+# PERSONAL ADDED
+# =========================
+**/.private/*
+!**/.private/tester.py

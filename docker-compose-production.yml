@@ -1,13 +1,12 @@
-version: '3.8'
-
 services:
   web:
+    container_name: sustainability_app
     build:
       context: .
       dockerfile: Dockerfile
     command: sh -c "./wait-for-db.sh db gunicorn --bind 0.0.0.0:8000 project.wsgi:application"
     volumes:
-      - .:/code
+      - .:/usr/src/app
     ports:
       - "8010:8000"
     env_file:
@@ -19,8 +18,8 @@ services:
     restart: always
 
   db:
-    image: postgres:13
     container_name: db
+    image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:

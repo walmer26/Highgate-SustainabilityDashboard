@@ -63,7 +63,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic', # WhiteNoise
     'django.contrib.staticfiles',
+    'rest_framework',
     'allauth', # AllAuth
     'allauth.account', # AllAuth
     'allauth.socialaccount', # AllAuth
@@ -76,8 +78,9 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
-    'allauth.account.middleware.AccountMiddleware', #AllAuth
     'django.middleware.security.SecurityMiddleware',
+    'allauth.account.middleware.AccountMiddleware', #AllAuth
+    'whitenoise.middleware.WhiteNoiseMiddleware', #WhiteNoise
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -85,7 +88,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'apps.upload.middleware.PopulateDataMessageMiddleware',
+    'apps.upload.middleware.PopulateDataMessageMiddleware', # upload app
 ]
 
 

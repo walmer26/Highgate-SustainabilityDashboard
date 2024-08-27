@@ -1,44 +1,59 @@
-# Use the official Python image from the Docker Hub
+# Use the official Python image from the Docker Hub, supporting multiple architectures
 FROM python:3.10.12-slim
+
+# Set work directory
+WORKDIR /usr/src/app
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Change to production as needed
-ENV DJANGO_ENVIRONMENT=development
+ENV DJANGO_ENVIRONMENT=production
 
-# Set work directory
-WORKDIR /code
+# Upgrade pip
+RUN pip install --upgrade pip
 
-# Install system dependencies including PostgreSQL client
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
-    pkg-config \
-    libmariadb-dev-compat \
-    libmariadb-dev \
-    default-mysql-client \
-    postgresql-client && \
+    pkg-config && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Install PostgreSQL client based on the architecture
+RUN apt-get update && \
+    if [ "$(uname -m)" = "x86_64" ]; then \
+        apt-get install -y --no-install-recommends postgresql-client; \
+    elif [ "$(uname -m)" = "aarch64" ]; then \
+        apt-get install -y --no-install-recommends postgresql-client; \
+    fi && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy project
-COPY . .
+# Install MySQL client and dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libmariadb-dev-compat \
+    libmariadb-dev \
+    default-mysql-client && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set entrypoint script executable permissions
-RUN chmod +x ./entrypoint.sh ./wait-for-db.sh
+# Copy over the container the requirements.txt file
+COPY ./requirements.txt /usr/src/app/requirements.txt
+
+# Install all the app required packages
+RUN pip install -r requirements.txt
+
+# Copy project and settings template
+COPY . /usr/src/app
+COPY ./project/settings /usr/src/app/project/settings-template
 
 # Expose port
 EXPOSE 8000
 
 # Run entrypoint script
-ENTRYPOINT ["./entrypoint.sh"]
-
-# Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "project.wsgi:application"]
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]

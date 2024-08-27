@@ -9,11 +9,11 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = False
 
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'thewalmer.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '.thewalmer.com']
 
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://thewalmer.com',
+    'https://*.thewalmer.com',
 ]
 
 
