@@ -13,23 +13,21 @@ def parse_csv(file_path, delimiter=','):
             "Location #",
             "Vendor Name",
             "Account #",
-            "Clean Account #",
-            "Supplier Only Account",
-            "Audit Only",
-            "Meter #",
-            "Rate Schedule",
-            "Month",
+            "Bill Month",
+            "Bill Date",
+            "Service Begin Date",
+            "Service End Date",
             "Service Days",
-            "Cost",
             "Service Type",
             "UOM",
             "Usage",
-            "Cost Per Unit",
-            "KBTUs",
-            "Open Exceptions",
-            "Bundle",
-            "Entity",
-            "Total Bldg SqFt"
+            "Billed Quantity",
+            "Cost",
+            "Audit Only",
+            "Entry Date",
+            "Meter #",
+            "Supplier Only Account",
+            "Bill Image",
         ]
 
         # Ensure the CSV has the required columns
@@ -52,7 +50,7 @@ def process_folder(folder_path):
 
 if __name__ == "__main__":
     # Example usage
-    folder_path = "/home/walmer/Projects/HighgateDashboard/.private/reports"
+    folder_path = "/home/walmer/Projects/HighgateDashboard/.private/Engie Data/Data_InvoiceDetail"
     all_data = process_folder(folder_path)
     for x in all_data:
         print(x)
