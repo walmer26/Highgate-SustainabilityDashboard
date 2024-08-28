@@ -1,6 +1,7 @@
+import csv
 from datetime import datetime
-from csv_parser import process_folder
 from decimal import Decimal
+from csv_parser import process_folder
 
 
 def parse_date(date_str):
@@ -8,117 +9,120 @@ def parse_date(date_str):
     return datetime.strptime(date_str, '%m/%d/%Y')
 
 
-def accumulate_usage_per_unique_id_per_period(data):
+def summary_per_unique_key(data):
+    """
+    It returns a dictionary with a unique_key as a combination of 'Location name', 'Account #' and 'Service Type'.
+    Each unique_key combination key has sub-dictionaries with a tuple as period_key and another sub-dictionary as value < period_key:{} >.
+    In the last dictionary (which is the value part of the 'period_key') we are having key:value pairs, which keys are the titles
+    of the Set() we are having as its values for each case with its Usage Total in Decimal type. See a visual schema below:   
+
+        billing_data = {
+            unique_id:{
+                period_key:{
+                    "Bill Images Count":set(),
+                    "Entry Dates Count":set(),
+                    "Total Usage": 0,
+                },
+                period_key:{
+                    "Bill Images Count":set(),
+                    "Entry Dates Count":set(),
+                    "Total Usage": 0,
+                },
+            },
+            unique_id:{
+                period_key:{
+                    "Bill Images Count":set(),
+                    "Entry Dates Count":set(),
+                    "Total Usage": 0,
+                },
+                period_key:{
+                    "Bill Images Count":set(),
+                    "Entry Dates Count":set(),
+                    "Total Usage": 0,
+                },
+            },
+        }
+
+    """
+
     billing_data = {}
 
+    # starting the iteration of the generator
     for entry in data:
+        # Declaring variables on iterating line that will be used
         unique_id = f"{entry['Location Name']}-{entry['Account #']}-{entry['Service Type']}"
         service_begin = parse_date(entry['Service Begin Date'])
         service_end = parse_date(entry['Service End Date'])
+        bill_image = entry['Bill Image']
+        entry_date = parse_date(entry["Entry Date"])
         usage = Decimal(entry['Usage'])
+        unit = entry["UOM"].lower()
+
+        # These are statistical units to avoid record usage on them
+        avoid_stats_units = ["kw", "kvar", "kvarh", "kva"]
 
         # Initialize the dictionary for the unique_id if not already present
         if unique_id not in billing_data:
             billing_data[unique_id] = {}
-        
+
         # Create a tuple for the period key
         period_key = (service_begin, service_end)
+        # Initialize the dictionary for the period_key if not already present
+        if period_key not in billing_data[unique_id]:
+            billing_data[unique_id][period_key] = {
+                "Bill Images Set": set(),
+                "Entry Dates Set": set(),
+                "Total Usage": 0,
+            }
 
-        # If the period exists, accumulate the usage
-        if period_key in billing_data[unique_id]:
-            billing_data[unique_id][period_key] += usage
-        else:
-            # Otherwise, initialize the usage for that period
-            billing_data[unique_id][period_key] = usage
+        # Add the current bill image and entry date to the sets
+        if unit not in avoid_stats_units and usage != 0:
+            billing_data[unique_id][period_key]["Total Usage"] += usage
+            billing_data[unique_id][period_key]["Bill Images Set"].add(bill_image)
+            billing_data[unique_id][period_key]["Entry Dates Set"].add(entry_date)
 
-    return billing_data
-
-def bill_count_per_unique_id_per_period(data):
-    billing_data = {}
-
-    for entry in data:
-        unique_id = f"{entry['Location Name']}-{entry['Account #']}-{entry['Service Type']}"
-        service_begin = parse_date(entry['Service Begin Date'])
-        service_end = parse_date(entry['Service End Date'])
-        bill_image = entry['Bill Image']
-
-        # Initialize the dictionary for the unique_id if not already present
-        if unique_id not in billing_data:
-            billing_data[unique_id] = {}
-        
-        # Create a tuple for the period key
-        period_key = (service_begin, service_end)
-
-        # If the period exists, add the bill_image to the set
-        if period_key in billing_data[unique_id]:
-            billing_data[unique_id][period_key].add(bill_image)
-        else:
-            # Otherwise, initialize a set for that period and add the bill_image
-            billing_data[unique_id][period_key] = {bill_image}
-
-    # Convert the sets to their lengths (i.e., count of unique bill images)
+    # Convert the sets to their counts instead
     for unique_id, periods in billing_data.items():
-        for period in periods:
-            periods[period] = len(periods[period])
+        for period_key in periods:
+            periods[period_key]["Bill Images Count"] = len(periods[period_key].pop("Bill Images Set"))
+            periods[period_key]["Entry Dates Count"] = len(periods[period_key].pop("Entry Dates Set"))
 
     return billing_data
 
 
-def check_overlaps(data):
-    billing_periods = {}
-    duplicates = []
-    overlaps = []
-
-    for entry in data:
-        unique_id = f"{entry['Location Name']}-{entry['Account #']}-{entry['Service Type']}"
-        service_begin = parse_date(entry['Service Begin Date'])
-        service_end = parse_date(entry['Service End Date'])
-        bill_image = entry['Bill Image']
-
-        if unique_id not in billing_periods:
-            billing_periods[unique_id] = []
-        
-        # Check for duplicates and overlapping dates
-        for (begin, end, bill) in billing_periods[unique_id]:
-            if service_begin == begin and service_end == end and bill_image != bill:
-                # Add the Unique ID to the entry
-                entry['Unique ID'] = unique_id
-                duplicates.append(entry)
-            elif service_begin <= end and service_end >= begin:
-                # Add the Unique ID to the entry
-                entry['Unique ID'] = unique_id
-                overlaps.append(entry)
-        
-        # Add the current billing period to the tracking list
-        billing_periods[unique_id].append((service_begin, service_end, bill_image))
+def export_dupp_summary_per_unique_key_to_csv(billing_data, filename):
+    """Exports Engie Data considered duplicated to a CSV file."""
     
-    return duplicates, overlaps
+    header = ['Unique ID', 'Service Begin Date', 'Service End Date', 'Bill Images Count', 'Entry Dates Count', 'Total Usage']
+    
+    with open(filename, mode='w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(header)
+        
+        for unique_id, periods in billing_data.items():
+            for period_key, counts in periods.items():
+                bill_count = counts["Bill Images Count"]
+                entry_dates_count = counts["Entry Dates Count"]
+                total_usage = counts["Total Usage"]
+                service_begin, service_end = period_key
+                if bill_count > 1 or entry_dates_count > 1:
+                    if total_usage != 0:
+                        writer.writerow([
+                            unique_id, 
+                            service_begin.strftime('%m/%d/%Y'), 
+                            service_end.strftime('%m/%d/%Y'), 
+                            bill_count, 
+                            entry_dates_count,
+                            total_usage
+                        ])
+
+    print(f"Billing data successfully exported to {filename}")
 
 
 
+# Usage example
 if __name__ == '__main__':
-    folder_path = "/home/walmer/Projects/HighgateDashboard/.private/Engie Data/Data_InvoiceDetail"
+    folder_path = r"C:\Users\wramirez1\Downloads\Projects\Highgate-SustainabilityDashboard\.private\Engie Data\Data_InvoiceDetail"
     data = process_folder(folder_path)
-
-    # duplicates, overlaps = check_overlaps(data)
-    # pprint("Duplicates:")
-    # for dup in duplicates:
-    #     print(dup)
-
-    # print("Overlaps:")
-    # for overlap in overlaps:
-    #     print(overlap)
-
-    # # Output example
-    # for unique_id, periods in billing_data.items():
-    #     print(f"Unique ID: {unique_id}")
-    #     for period, usage in periods.items():
-    #         pprint(f"  Service Begin Date: {period[0]}, Service End Date: {period[1]}, Accumulated Usage: {usage}")
-
-    billing_data = bill_count_per_unique_id_per_period(data)
-    # Now you can iterate over the resulting dictionary
-    for unique_id, periods in billing_data.items():
-        for period, distinct_count in periods.items():
-            if distinct_count > 1:
-                print(f"Unique ID: {unique_id}")
-                print(f"  Service Begin Date: {period[0]}, Service End Date: {period[1]}, Distinct Bill Images: {distinct_count}")
+    dupp_billing_data = summary_per_unique_key(data)
+    export_dupp_summary_per_unique_key_to_csv(dupp_billing_data, './.private/billing_data.csv')
