@@ -50,7 +50,7 @@ def process_folder(folder_path):
 
 if __name__ == "__main__":
     # Example usage
-    folder_path = r"C:\Users\wramirez1\Downloads\Projects\Highgate-SustainabilityDashboard\.private\Engie Data\Data_InvoiceDetail"
+    folder_path = r"C:\Users\andrea.viera\Downloads\Sustainability Dashboard\Highgate-SustainabilityDashboard\.private\Engie Data"
     all_data = process_folder(folder_path)
     for x in all_data:
         print(x)

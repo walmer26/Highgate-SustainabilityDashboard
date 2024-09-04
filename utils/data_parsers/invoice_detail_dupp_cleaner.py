@@ -122,7 +122,7 @@ def export_dupp_summary_per_unique_key_to_csv(billing_data, filename):
 
 # Usage example
 if __name__ == '__main__':
-    folder_path = r"C:\Users\wramirez1\Downloads\Projects\Highgate-SustainabilityDashboard\.private\Engie Data\Data_InvoiceDetail"
+    folder_path = r"C:\Users\andrea.viera\Downloads\Sustainability Dashboard\Highgate-SustainabilityDashboard\.private\Engie Data"
     data = process_folder(folder_path)
     dupp_billing_data = summary_per_unique_key(data)
     export_dupp_summary_per_unique_key_to_csv(dupp_billing_data, './.private/billing_data.csv')
