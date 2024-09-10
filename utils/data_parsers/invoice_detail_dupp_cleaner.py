@@ -1,7 +1,7 @@
 import csv
 from datetime import datetime
 from decimal import Decimal
-from csv_parser import process_folder
+from invoice_detail_csv_parser import process_folder
 
 
 def parse_date(date_str):

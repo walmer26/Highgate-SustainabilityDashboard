@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic', # WhiteNoise
     'django.contrib.staticfiles',
+    'background_task', # django background
     'rest_framework',
     'allauth', # AllAuth
     'allauth.account', # AllAuth
@@ -88,7 +89,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'apps.upload.middleware.PopulateDataMessageMiddleware', # upload app
+    'apps.upload.middleware.TaskCompletionMessageMiddleware', # upload app
 ]
 
 

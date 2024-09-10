@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Location, Vendor, Account, Meter, RateSchedule, Service
+from .models import Location, Vendor, Account, RateSchedule, Service
 
 
 @admin.register(Location)
@@ -20,16 +20,8 @@ class VendorAdmin(admin.ModelAdmin):
 class AccountAdmin(admin.ModelAdmin):
     list_display = [
         'account_number',
-        'clean_account_number',
         'supplier_only_account',
         'audit_only',
-        'location',
-    ]
-
-@admin.register(Meter)
-class MeterAdmin(admin.ModelAdmin):
-    list_display = [
-        'meter_number',
         'location',
     ]
 
@@ -45,7 +37,6 @@ class ServiceAdmin(admin.ModelAdmin):
         'location',
         'vendor',
         'account',
-        'meter',
         'rate_schedule',
         'month',
         'year',
@@ -54,11 +45,9 @@ class ServiceAdmin(admin.ModelAdmin):
         'service_type',
         'uom',
         'usage',
-        'cost_per_unit',
         'kbtus',
         'open_exceptions',
         'bundle',
         'entity',
         'hash',
     ]
-

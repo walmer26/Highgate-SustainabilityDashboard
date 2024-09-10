@@ -33,7 +33,7 @@ def dashboard_view(request):
 
     # Fetch all services for the latest year in a single query
     services = Service.objects \
-                .select_related('location', 'vendor', 'account', 'meter', 'rate_schedule') \
+                .select_related('location', 'vendor', 'account', 'rate_schedule') \
                 .filter(year=latest_year) \
                 .values('location__name', 'month', 'service_type', 'uom') \
                 .annotate(total_usage=Sum('usage')) \
