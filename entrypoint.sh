@@ -7,6 +7,7 @@ echo "DJANGO_ENVIRONMENT is set to $DJANGO_ENVIRONMENT"
 echo "Setting file permissions using PUID=${PUID} and PGID=${PGID}"
 
 # Set ownership and permissions for the app directory and template directory
+mkdir -p /usr/src/app/media
 chown -R ${PUID}:${PGID} /usr/src/app/project/settings/ /usr/src/app/media
 chmod -R 775 /usr/src/app/project/settings/ /usr/src/app/media
 
