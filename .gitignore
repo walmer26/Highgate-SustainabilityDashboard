@@ -338,3 +338,4 @@ ehthumbs_vista.db
 # =========================
 **/.private/*
 !**/.private/tester.py
+!**/.private/docker-compose.yml

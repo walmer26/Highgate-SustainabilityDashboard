@@ -3,7 +3,7 @@ services:
     container_name: db
     image: postgres:13
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - database:/var/lib/postgresql/data
     env_file:
       - .env.production
     ports:
@@ -18,13 +18,12 @@ services:
     restart: always
 
   web:
-    container_name: sustainability_app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: sh -c "./wait-for-db.sh db && python manage.py migrate && gunicorn --bind 0.0.0.0:8000 project.wsgi:application"
+    container_name: sustainability_app_production
+    image: walmer26/highgate-sustainability:latest
+    command: sh -c "./wait-for-db.sh db gunicorn --bind 0.0.0.0:8000 project.wsgi:application"
     volumes:
-      - .:/usr/src/app
+      - settings:/usr/src/app/project/settings
+      - media:/usr/src/app/media
     ports:
       - "8010:8000"
     env_file:
@@ -41,13 +40,12 @@ services:
     restart: always
 
   task_worker:
-    container_name: sustainability_task_worker
-    build:
-      context: .
-      dockerfile: Dockerfile
+    container_name: sustainability_task_worker_production
+    image: walmer26/highgate-sustainability:latest
     command: sh -c "./wait-for-db.sh db python manage.py process_tasks"
     volumes:
-      - .:/usr/src/app
+      - settings:/usr/src/app/project/settings
+      - media:/usr/src/app/media
     env_file:
       - .env.production
     environment:
@@ -62,7 +60,9 @@ services:
     restart: always
 
 volumes:
-  postgres_data:
+  database:
+  settings:
+  media:
 
 networks:
   sustainability-network:

@@ -17,20 +17,25 @@ if [ -z "$(ls -A /usr/src/app/project/settings)" ]; then
     chown -R ${PUID}:${PGID} /usr/src/app/project/settings/  # Ensure ownership is correct after copying
 fi
 
-# Wait for the database to be ready only in production
-if [ "$DJANGO_ENVIRONMENT" = "production" ]; then
-  echo "Collecting staticfiles..."
-  python manage.py collectstatic --noinput
-  echo "Waiting for database..."
-  ./wait-for-db.sh db
+# Skip migrations for the task worker
+if [ "$DJANGO_COMMAND" != "process_tasks" ]; then
+  # Wait for the database to be ready only in production
+  if [ "$DJANGO_ENVIRONMENT" = "production" ]; then
+    echo "Collecting staticfiles..."
+    python manage.py collectstatic --noinput
+    echo "Waiting for database..."
+    ./wait-for-db.sh db
+  fi
+
+  # Apply database migrations
+  echo "Applying database migrations"
+  python manage.py makemigrations
+  python manage.py migrate
+  echo "Database migrations applied successfully"
+else
+  echo "Skipping migrations for the task worker"
 fi
 
-# Apply database migrations
-echo "Applying database migrations"
-python manage.py makemigrations
-python manage.py migrate
-echo "Database migrations applied successfully"
-
-# Start the server
-echo "Starting server"
+# Start the server or process tasks
+echo "Starting $DJANGO_COMMAND"
 exec "$@"
